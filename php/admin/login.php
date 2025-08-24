@@ -90,12 +90,12 @@ $csrf = csrf_token_issue();
 <body>
   <div class="login-wrapper">
     <form class="login-card" method="post" action="login.php" autocomplete="off" novalidate>
-      <h1>Admin Login</h1>
+      <h1>Welcom To Salameh Cargo!</h1>
 
       <?php if ($error): ?>
         <div class="alert"><?=htmlspecialchars($error)?></div>
       <?php endif; ?>
-
+        <p>Login to manage your shipments</p>
       <div class="field">
         <label for="username">Username</label>
         <input id="username" name="username" type="text" required autofocus>

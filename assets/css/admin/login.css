@@ -1,8 +1,8 @@
 /* Admin Login – page-specific styles */
 
 :root {
-  --bg: #0f1216;
-  --card: #151a21;
+  --bg: #1c3e6a;
+  --card: #192a41;
   --text: #e7ecf3;
   --muted: #98a2b3;
   --accent: #2563eb;
@@ -16,7 +16,7 @@
 html, body {
   height: 100%;
   margin: 0;
-  background: linear-gradient(180deg, #0b0e12, #0f1216);
+  background: linear-gradient(180deg, #b2d3ff, #e5e5e5);
   color: var(--text);
   font-family: system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, Noto Sans, "Helvetica Neue", Arial, "Apple Color Emoji", "Segoe UI Emoji";
 }
@@ -60,7 +60,7 @@ html, body {
   padding: 12px 12px;
   border-radius: 10px;
   border: 1px solid var(--border);
-  background: #0f141a;
+  background: #1b2839;
   color: var(--text);
   outline: none;
 }
@@ -93,4 +93,8 @@ html, body {
   margin-bottom: 14px;
   font-size: 13px;
   line-height: 1.35;
+}
+p{
+  color: #e5e5e5;
+  font-size: 14px;
 }
