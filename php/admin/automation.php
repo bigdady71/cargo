@@ -1,3 +1,6 @@
+
+
+
 <?php
 // ---------- TOP OF FILE ----------
 session_start();
@@ -39,8 +42,7 @@ requireAdmin(); // enforce admin login
   <meta charset="utf-8">
   <title>Admin Page</title>
   <link rel="stylesheet" href="../../assets/css/admin/automation.css"><!-- change per page -->
-</head>
-<body>
-  <!-- Admin content -->
-</body>
-</html>
+
+
+  
+<?php include __DIR__ . '/../../assets/inc/footer.php'; ?>

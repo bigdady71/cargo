@@ -1,46 +1,103 @@
+
 <?php
-// ---------- TOP OF FILE ----------
-session_start();
+// ---------- TOP ----------
+require_once dirname(__DIR__, 2) . '/assets/inc/init.php';
+requireAdmin(); // admin-only
 
-/* DB connection */
-$dbHost = 'localhost';
-$dbName = 'salameh_cargo';
-$dbUser = 'root';
-$dbPass = '';
+$success = '';
+$error   = '';
 
-try {
-    $pdo = new PDO(
-        "mysql:host={$dbHost};dbname={$dbName};charset=utf8mb4",
-        $dbUser,
-        $dbPass,
-        [
-            PDO::ATTR_ERRMODE            => PDO::ERRMODE_EXCEPTION,
-            PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
-            PDO::ATTR_EMULATE_PREPARES   => false,
-        ]
-    );
-} catch (PDOException $e) {
-    die('Database connection failed: ' . $e->getMessage());
-}
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    // if ( !csrf_check($_POST['csrf'] ?? '') ) { $error = 'Invalid request.'; }
 
-/* Auth: require admin */
-function requireAdmin() {
-    if (!isset($_SESSION['admin_id'])) {
-        header('Location: login.php');
-        exit;
+    $full_name     = trim($_POST['full_name']     ?? '');
+    $email         = trim($_POST['email']         ?? '');
+    $phone         = trim($_POST['phone']         ?? '');
+    $shipping_code = trim($_POST['shipping_code'] ?? '');
+    $address       = trim($_POST['address']       ?? '');
+    $country       = trim($_POST['country']       ?? '');
+    $id_number     = trim($_POST['id_number']     ?? '');
+
+    if ($full_name === '' || $phone === '') {
+        $error = 'Full name and phone are required.';
+    } else {
+        try {
+            $stmt = $pdo->prepare('
+                INSERT INTO users
+                    (full_name, email, phone, shipping_code, address, country, id_number)
+                VALUES
+                    (?, ?, ?, ?, ?, ?, ?)
+            ');
+            $stmt->execute([
+                $full_name,
+                $email !== '' ? $email : null,
+                $phone,
+                $shipping_code !== '' ? $shipping_code : null,
+                $address !== '' ? $address : null,
+                $country !== '' ? $country : null,
+                $id_number !== '' ? $id_number : null,
+            ]);
+            $success = 'User created successfully.';
+        } catch (PDOException $e) {
+            $error = ($e->getCode() === '23000')
+                ? 'Phone or shipping code already exists.'
+                : 'Database error: ' . $e->getMessage();
+        }
     }
 }
-requireAdmin(); // enforce admin login
-// ---------- END HEADER BLOCK ----------
+
+// supply page vars for header
+$page_title = 'Add User';
+$page_css   = '../../assets/css/admin/add_user.css';
+
+include dirname(__DIR__, 2) . '/assets/inc/header.php';
 ?>
-<!doctype html>
-<html lang="en">
-<head>
-  <meta charset="utf-8">
-  <title>Admin Page</title>
-  <link rel="stylesheet" href="../../assets/css/admin/add_user.css"><!-- change per page -->
-</head>
-<body>
-  <!-- Admin content -->
-</body>
-</html>
+<main class="container">
+  <h1>Add User</h1>
+
+  <?php if ($success): ?>
+    <div class="alert success"><?= htmlspecialchars($success) ?></div>
+  <?php endif; ?>
+
+  <?php if ($error): ?>
+    <div class="alert error"><?= htmlspecialchars($error) ?></div>
+  <?php endif; ?>
+
+  <form method="post" action="add_user.php" autocomplete="off" class="form-grid">
+    <!-- <input type="hidden" name="csrf" value="<?= csrf_issue() ?>"> -->
+
+    <label>Full Name
+      <input type="text" name="full_name" required>
+    </label>
+
+    <label>Email
+      <input type="email" name="email" placeholder="optional">
+    </label>
+
+    <label>Phone
+      <input type="text" name="phone" required>
+    </label>
+
+    <label>Shipping Code
+      <input type="text" name="shipping_code" placeholder="optional">
+    </label>
+
+    <label class="wide">Address
+      <input type="text" name="address" placeholder="optional">
+    </label>
+
+    <label>Country
+      <input type="text" name="country" placeholder="optional">
+    </label>
+
+    <label>ID Number
+      <input type="text" name="id_number" placeholder="optional">
+    </label>
+
+    <div class="actions">
+      <button type="submit">Create User</button>
+      <a class="btn-secondary" href="dashboard.php">Cancel</a>
+    </div>
+  </form>
+</main>
+<?php include dirname(__DIR__, 2) . '/assets/inc/footer.php'; ?>

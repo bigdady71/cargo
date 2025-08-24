@@ -47,10 +47,7 @@ try {
   <meta charset="utf-8">
   <title>Admin Dashboard</title>
   <link rel="stylesheet" href="../../assets/css/admin/dashboard.css">
-</head>
-<body>
-  <h1>Welcome, <?=htmlspecialchars($_SESSION['admin_username'] ?? 'Admin')?>!</h1>
-  <p>Total shipments: <?=$totalShipments?></p>
-  <!-- Build out KPIs and actions next -->
-</body>
-</html>
+
+  
+
+  <?php include __DIR__ . '/../../assets/inc/footer.php'; ?>

@@ -1,5 +1,8 @@
 <?php
-if (!defined('APP_BASE')) define('APP_BASE', '');
+// Optional vars from the page:
+// $page_title  (string)
+// $page_css    (string) -> e.g. "../../assets/css/admin/add_user.css"
+
 if (!isset($page_title)) $page_title = 'Admin';
 ?>
 <!DOCTYPE html>
@@ -9,19 +12,23 @@ if (!isset($page_title)) $page_title = 'Admin';
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title><?= htmlspecialchars($page_title) ?></title>
 
-  <!-- shared admin header/footer css -->
-  <link rel="stylesheet" href="<?= APP_BASE ?>header.css">
-  <link rel="stylesheet" href="<?= APP_BASE ?>footer.css"><!-- optional -->
+  <!-- Shared header/footer styles -->
+  <link rel="stylesheet" href="../../assets/inc/header.css">
+  <link rel="stylesheet" href="../../assets/inc/footer.css">
+
+  <?php if (!empty($page_css)): ?>
+    <link rel="stylesheet" href="<?= htmlspecialchars($page_css) ?>">
+  <?php endif; ?>
 </head>
 <body>
 <header>
   <div class="navbar">
     <ul>
-      <li><a href="<?= APP_BASE ?>/php/admin/dashboard.php">Home</a></li>
-      <li><a href="<?= APP_BASE ?>/php/admin/manage_shipments.php">Products</a></li>
-      <li><a href="<?= APP_BASE ?>/php/admin/automation.php">Services</a></li>
-      <li><a href="<?= APP_BASE ?>/php/admin/add_user.php">About</a></li>
-      <li><a href="<?= APP_BASE ?>/php/admin/login.php">Contact</a></li>
+      <li><a href="dashboard.php">Home</a></li>
+      <li><a href="manage_shipments.php">Products</a></li>
+      <li><a href="automation.php">Services</a></li>
+      <li><a href="add_user.php">Add User</a></li>
+      <li><a href="login.php">Login</a></li>
     </ul>
   </div>
 </header>

@@ -1,5 +1,6 @@
-<footer></footer>
-<script src="<?= APP_BASE ?>/assets/js/admin/header.js"></script>
-<script src="<?= APP_BASE ?>/assets/js/admin/footer.js"></script><!-- optional -->
+<footer>
+</footer>
+<script src="../../assets/inc/header.js"></script>
+<script src="../../assets/inc/footer.js"></script>
 </body>
 </html>
