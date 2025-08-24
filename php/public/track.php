@@ -26,7 +26,7 @@ try {
 /* Optional helper (kept here for convenience if you later flip a page to protected) */
 function requireUser() {
     if (!isset($_SESSION['user_id'])) {
-        header('Location: /php/public/login.php');
+        header('Location: login.php');
         exit;
     }
 }

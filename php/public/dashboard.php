@@ -25,7 +25,7 @@ try {
 /* Auth: require logged-in customer */
 function requireUser() {
     if (!isset($_SESSION['user_id'])) {
-        header('Location: /php/public/login.php');
+        header('Location: login.php');
         exit;
     }
 }
