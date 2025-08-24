@@ -1,6 +1,3 @@
-
-
-
 <?php
 // ---------- TOP OF FILE ----------
 session_start();

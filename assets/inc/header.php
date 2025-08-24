@@ -23,12 +23,12 @@ if (!isset($page_title)) $page_title = 'Admin';
 <body>
 <header>
   <div class="navbar">
-    <ul>
-      <li><a href="dashboard.php">Home</a></li>
-      <li><a href="manage_shipments.php">Products</a></li>
-      <li><a href="automation.php">Services</a></li>
+    <ul> 
       <li><a href="add_user.php">Add User</a></li>
-      <li><a href="login.php">Login</a></li>
+      <li><a href="automation.php">Automation</a></li>
+      <li><a href="dashboard.php">dashboard</a></li>
+      <li><a href="manage_shipments.php">Products</a></li>
+      <li><a href="upload_shipments.php">Upload</a></li>
     </ul>
   </div>
 </header>
