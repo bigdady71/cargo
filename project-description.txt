@@ -1,0 +1,55 @@
+Project Overview
+Salameh Cargo is a PHP/MySQL shipment‐tracking platform with both a customer‑facing and an admin interface. Its core mission is to let customers and admins monitor shipment statuses and manage user accounts.
+
+Existing Architecture & Pages
+
+Directory structure: The app separates concerns into public/ (customer pages), admin/ (back‑office), includes/ (shared functions like DB connection and auth), assets/ (CSS/JS/images), and cron/ (background scripts).
+
+Admin pages:
+
+Dashboard (index.php) – shows quick stats on active shipments, users and system status.
+
+Manage Shipments (shipments.php) – searchable table of shipments with inline status update.
+
+Upload Shipments (upload_shipments.php) – uploads CSV/XLSX files and bulk‑inserts shipments.
+
+Add User (add_user.php) – form to create new customers or agents.
+
+Automation (automation.php) – view last/next cron runs and manually trigger status updates.
+
+Public pages include a shipment tracking form and a login page with WhatsApp OTP verification, about us , contact us , dashboard page that will show only for loged in users showing shippment history and stuff like the image i attached , tracking page 
+
+we want no reusable items and containers , like i want a clean build so i can custimize each page as i want , no files like auth.php and db.php and such , each page need to have all it's info needed withing it 
+
+Styling: CSS lives under assets/css and each page have it's own css no matching file , so each oage can be edited separettly , 
+Back‑end Logic
+
+The platform uses PHP (procedural style) and MySQL, connecting via PDO. Data is pulled from or inserted into the DB using prepared statements.
+
+A cron job (cron/update_shipments.php) runs every 24 hours to scrape multiple shipping lines (TrackTrace.ph, Port of Beirut, CMA CGM, MSC, Maersk, Evergreen, ONE) and updates the shipment_scrapes table.
+
+OTP: The login flow requires a WhatsApp OTP sent through Twilio’s API. 
+
+Database Structure
+The database is named salameh_cargo. Key tables include:
+
+admins – stores admin credentials with fields like admin_id, username (unique), password_hash, role and is_active.
+
+users – holds customer details such as user_id, full_name, email, phone (unique), shipping_code (unique), address, country, id_number, and timestamps.
+
+shipments – the core shipment table with shipment_id, user_id, unique tracking_number, container_number, bl_number, shipping_code, descriptions, dimensions (CBM, cartons, weight, gross weight), amounts, status (default En Route), origin/destination, pickup/delivery dates and timestamps.
+
+shipment_scrapes – stores statuses scraped from external websites: scrape_id, shipment_id, source_site, status, status_raw and scrape_time.
+
+logs – logs actions performed (e.g., user_created, status_updated, errors), with log_id, action_type, actor_id, related_shipment_id, details and timestamp.
+
+Planned Enhancements (fresh build)
+You want to rebuild the admin panel from scratch, with a clean file structure (css/, php/, javascript/, images/, assets/). The goal is to:
+
+Integrate Twilio for OTP verification.
+
+Use Selenium (browser automation) and Microsoft Power Automate for automated tasks.
+
+Expand scraping to daily updates from a list of 10 websites (beyond the current carriers).
+
+Build each admin page with its own CSS and JS to avoid styling conflicts.
