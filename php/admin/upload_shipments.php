@@ -26,30 +26,21 @@ function numOrNull($v) {
   $v = trim((string)$v);
   if ($v === '') return null;
 
-  // Handle negatives written as (123.45)
   $neg = false;
-  if ($v[0] === '(' && substr($v, -1) === ')') {
-    $neg = true;
-    $v = substr($v, 1, -1);
-  }
+  if ($v[0] === '(' && substr($v, -1) === ')') { $neg = true; $v = substr($v, 1, -1); }
 
-  // Keep only digits, commas, dots and minus
   $v = preg_replace('/[^\d,.\-]/', '', $v);
 
-  // If it uses comma as decimal and no dot, normalize to dot
   if (substr_count($v, ',') > 0 && substr_count($v, '.') === 0) {
-    $v = str_replace('.', '', $v);   // thousands dots (just in case)
-    $v = str_replace(',', '.', $v);  // decimal comma -> dot
+    $v = str_replace('.', '', $v);
+    $v = str_replace(',', '.', $v);
   } else {
-    // normal US format: remove thousands commas
     $v = str_replace(',', '', $v);
   }
 
   if ($neg) $v = '-'.$v;
-
   return is_numeric($v) ? (float)$v : null;
 }
-
 function intOrNull($v){ $v=trim((string)$v); return ($v!=='' && is_numeric($v)) ? (int)$v : null; }
 function parseDateOrNull($v){ $v=trim((string)$v); if($v==='')return null; $ts=strtotime($v); return $ts?date('Y-m-d',$ts):null; }
 function normalizeStatus(?string $s, array $allowed){ $s=trim((string)$s); return ($s!=='' && in_array($s,$allowed,true))?$s:'En Route'; }
@@ -73,11 +64,11 @@ $CANON = [
   'photo'=>'photo',
   'item no'=>'item_no','itemno'=>'item_no','item no.'=>'item_no',
   'description'=>'description','desc'=>'description',
-  'total ctns'=>'total_ctns','total cartons'=>'total_ctns','ctns'=>'total_ctns',
-  'qty/ctn'=>'qty_per_ctn','qty per ctn'=>'qty_per_ctn','qty per carton'=>'qty_per_ctn',
-  'totalqty'=>'total_qty','total qty'=>'total_qty',
-  'unit price'=>'unit_price','price'=>'unit_price',
-  'total amount'=>'total_amount','amount'=>'total_amount',
+  'total ctns'=>'total_ctns','total cartons'=>'total_ctns','ctns'=>'total_ctns','totalctns'=>'total_ctns',
+  'qty/ctn'=>'qty_per_ctn','qty per ctn'=>'qty_per_ctn','qty per carton'=>'qty_per_ctn','qty_ctn'=>'qty_per_ctn','qty per box'=>'qty_per_ctn',
+  'totalqty'=>'total_qty','total qty'=>'total_qty','total quantity'=>'total_qty',
+  'unit price'=>'unit_price','unitprice'=>'unit_price','price'=>'unit_price',
+  'total amount'=>'total_amount','totalamount'=>'total_amount','amount'=>'total_amount',
   'cbm'=>'cbm','total cbm'=>'total_cbm',
   'gwkg'=>'gwkg','gross weight (kg)'=>'gwkg',
   'total gw'=>'total_gw',
@@ -85,15 +76,7 @@ $CANON = [
   'shipping_code'=>'shipping_code','user_id'=>'user_id',
   'status'=>'status','origin'=>'origin','destination'=>'destination',
   'pickup_date'=>'pickup_date','delivery_date'=>'delivery_date',
-  'unitprice' => 'unit_price',
-'totalamount' => 'total_amount',
-'total quantity' => 'total_qty',
-'qty_ctn' => 'qty_per_ctn',
-'qty per box' => 'qty_per_ctn',
-'totalctns' => 'total_ctns',
-
   'tracking_number'=>'tracking_number'
-  
 ];
 $canonize = function(array $row) use ($CANON){
   $out=[];
@@ -103,6 +86,12 @@ $canonize = function(array $row) use ($CANON){
   }
   return $out;
 };
+
+/* --------- load users for dropdown --------- */
+try {
+  $allUsers = $pdo->query('SELECT user_id, full_name, shipping_code FROM users ORDER BY full_name ASC')->fetchAll();
+} catch (Throwable $e) { $allUsers = []; }
+$selectedUserId = (isset($_POST['user_id']) && $_POST['user_id'] !== '') ? (int)$_POST['user_id'] : null;
 
 /* --------------- import handler ----------------- */
 if ($_SERVER['REQUEST_METHOD']==='POST' && isset($_FILES['file'])) {
@@ -124,7 +113,6 @@ if ($_SERVER['REQUEST_METHOD']==='POST' && isset($_FILES['file'])) {
         else{
           $header=null;
           while(($cols=fgetcsv($fh,0,','))!==false){
-            // skip fully blank lines
             if (!array_filter($cols, fn($v)=>trim((string)$v) !== '')) continue;
 
             if ($header===null && $hasHeader){
@@ -132,24 +120,14 @@ if ($_SERVER['REQUEST_METHOD']==='POST' && isset($_FILES['file'])) {
               continue;
             }
             if ($header!==null){
-              $assoc=[];
-              foreach($header as $i=>$h){ if($h==='') continue; $assoc[$h]=$cols[$i]??''; }
+              $assoc=[]; foreach($header as $i=>$h){ if($h==='') continue; $assoc[$h]=$cols[$i]??''; }
               $rows[]=$assoc;
             }else{
-              // numeric index (0-based)
               $rows[]=[
-                'photo'=>$cols[0]??'',
-                'item no'=>$cols[1]??'',
-                'description'=>$cols[2]??'',
-                'total ctns'=>$cols[3]??'',
-                'qty/ctn'=>$cols[4]??'',
-                'totalqty'=>$cols[5]??'',
-                'unit price'=>$cols[6]??'',
-                'total amount'=>$cols[7]??'',
-                'cbm'=>$cols[8]??'',
-                'total cbm'=>$cols[9]??'',
-                'gwkg'=>$cols[10]??'',
-                'total gw'=>$cols[11]??'',
+                'photo'=>$cols[0]??'','item no'=>$cols[1]??'','description'=>$cols[2]??'',
+                'total ctns'=>$cols[3]??'','qty/ctn'=>$cols[4]??'','totalqty'=>$cols[5]??'',
+                'unit price'=>$cols[6]??'','total amount'=>$cols[7]??'','cbm'=>$cols[8]??'',
+                'total cbm'=>$cols[9]??'','gwkg'=>$cols[10]??'','total gw'=>$cols[11]??'',
               ];
             }
           }
@@ -159,8 +137,8 @@ if ($_SERVER['REQUEST_METHOD']==='POST' && isset($_FILES['file'])) {
         try{
           $spreadsheet=IOFactory::load($tmp);
           $sheet=$spreadsheet->getActiveSheet();
-          // IMPORTANT: returnCellRef = false -> numeric indexes (0,1,2…)
-          $data=$sheet->toArray(null, true, true, false);
+          // raw values + numeric indexes
+          $data=$sheet->toArray(null, true, false, false);
 
           if (!$data) { $flash_error='Empty XLSX sheet.'; }
           else{
@@ -169,26 +147,17 @@ if ($_SERVER['REQUEST_METHOD']==='POST' && isset($_FILES['file'])) {
               $header=array_map(fn($h)=>strtolower(trim((string)$h)),$headerRow);
               foreach($data as $cols){
                 if (!array_filter($cols, fn($v)=>trim((string)$v) !== '')) continue;
-                $assoc=[];
-                foreach($header as $i=>$h){ if($h==='') continue; $assoc[$h]=$cols[$i]??''; }
+                $assoc=[]; foreach($header as $i=>$h){ if($h==='') continue; $assoc[$h]=$cols[$i]??''; }
                 $rows[]=$assoc;
               }
             } else {
               foreach($data as $cols){
                 if (!array_filter($cols, fn($v)=>trim((string)$v) !== '')) continue;
                 $rows[]=[
-                  'photo'=>$cols[0]??'',
-                  'item no'=>$cols[1]??'',
-                  'description'=>$cols[2]??'',
-                  'total ctns'=>$cols[3]??'',
-                  'qty/ctn'=>$cols[4]??'',
-                  'totalqty'=>$cols[5]??'',
-                  'unit price'=>$cols[6]??'',
-                  'total amount'=>$cols[7]??'',
-                  'cbm'=>$cols[8]??'',
-                  'total cbm'=>$cols[9]??'',
-                  'gwkg'=>$cols[10]??'',
-                  'total gw'=>$cols[11]??'',
+                  'photo'=>$cols[0]??'','item no'=>$cols[1]??'','description'=>$cols[2]??'',
+                  'total ctns'=>$cols[3]??'','qty/ctn'=>$cols[4]??'','totalqty'=>$cols[5]??'',
+                  'unit price'=>$cols[6]??'','total amount'=>$cols[7]??'','cbm'=>$cols[8]??'',
+                  'total cbm'=>$cols[9]??'','gwkg'=>$cols[10]??'','total gw'=>$cols[11]??'',
                 ];
               }
             }
@@ -199,7 +168,6 @@ if ($_SERVER['REQUEST_METHOD']==='POST' && isset($_FILES['file'])) {
       if (!$flash_error && $rows){
         $summary['total_rows']=count($rows);
 
-        // canonize every row once
         $normRows = array_map($canonize, $rows);
 
         $pdo->beginTransaction();
@@ -219,50 +187,51 @@ if ($_SERVER['REQUEST_METHOD']==='POST' && isset($_FILES['file'])) {
             $agg['total_gw']    += numOrNull($r['total_gw']     ?? null) ?? 0.0;
           }
 
-          // resolve user_id from first row that has shipping_code
-          $userId=null;
-          foreach($normRows as $r){ if(!empty($r['shipping_code'])){ $userId=userIdFromShippingCode($pdo,$r['shipping_code']); break; } }
+          // resolve user_id: dropdown wins; else first shipping_code in file
+          $userId = $selectedUserId ?: null;
+          if ($userId === null) {
+            foreach($normRows as $r){
+              if(!empty($r['shipping_code'])) { $userId = userIdFromShippingCode($pdo,$r['shipping_code']); break; }
+            }
+          }
 
-          // insert one shipment row
-$insShipment = $pdo->prepare('
-  INSERT INTO shipments (
-    user_id, tracking_number, container_number, bl_number, shipping_code,
-    product_description, cbm, cartons, weight, gross_weight, total_amount,
-    status, origin, destination, pickup_date, delivery_date,
-    total_qty, total_cbm, total_gw,   -- ADDED
-    created_at, updated_at
-  ) VALUES (
-    :user_id, :tracking, NULL, NULL, :shipping_code,
-    :product_description, :cbm, :cartons, :weight, :gross_weight, :total_amount,
-    :status, :origin, :destination, :pickup_date, :delivery_date,
-    :total_qty, :total_cbm, :total_gw,  -- ADDED
-    NOW(), NOW()
-  )');
-
-$insShipment->execute([
-  ':user_id'             => $userId,
-  ':tracking'            => $tracking,
-  ':shipping_code'       => null,
-  ':product_description' => sprintf('Imported from %s (%d items)', $originalName, count($normRows)),
-  ':cbm'                 => ($agg['cbm'] > 0 ? $agg['cbm'] : $agg['total_cbm']),
-  ':cartons'             => $agg['cartons'],
-  ':weight'              => ($agg['gwkg'] > 0 ? $agg['gwkg'] : null),
-  ':gross_weight'        => ($agg['total_gw'] > 0 ? $agg['total_gw'] : null),
-  ':total_amount'        => $agg['total_amount'],
-  ':status'              => 'En Route',
-  ':origin'              => '',
-  ':destination'         => '',
-  ':pickup_date'         => null,
-  ':delivery_date'       => null,
-  // ADDED:
-  ':total_qty'           => $agg['total_qty'],
-  ':total_cbm'           => $agg['total_cbm'],
-  ':total_gw'            => $agg['total_gw'],
-]);
-
+          // insert one shipment row (with totals)
+          $insShipment = $pdo->prepare('
+            INSERT INTO shipments (
+              user_id, tracking_number, container_number, bl_number, shipping_code,
+              product_description, cbm, cartons, weight, gross_weight, total_amount,
+              status, origin, destination, pickup_date, delivery_date,
+              total_qty, total_cbm, total_gw,
+              created_at, updated_at
+            ) VALUES (
+              :user_id, :tracking, NULL, NULL, :shipping_code,
+              :product_description, :cbm, :cartons, :weight, :gross_weight, :total_amount,
+              :status, :origin, :destination, :pickup_date, :delivery_date,
+              :total_qty, :total_cbm, :total_gw,
+              NOW(), NOW()
+            )');
+          $insShipment->execute([
+            ':user_id'             => $userId,
+            ':tracking'            => $tracking,
+            ':shipping_code'       => null,
+            ':product_description' => sprintf('Imported from %s (%d items)',$originalName,count($normRows)),
+            ':cbm'                 => ($agg['cbm']>0?$agg['cbm']:$agg['total_cbm']),
+            ':cartons'             => $agg['cartons'],
+            ':weight'              => ($agg['gwkg']>0?$agg['gwkg']:null),
+            ':gross_weight'        => ($agg['total_gw']>0?$agg['total_gw']:null),
+            ':total_amount'        => $agg['total_amount'],
+            ':status'              => 'En Route',
+            ':origin'              => '',
+            ':destination'         => '',
+            ':pickup_date'         => null,
+            ':delivery_date'       => null,
+            ':total_qty'           => $agg['total_qty'],
+            ':total_cbm'           => $agg['total_cbm'],
+            ':total_gw'            => $agg['total_gw'],
+          ]);
           $shipmentId=(int)$pdo->lastInsertId();
 
-          // insert items
+          // insert line items
           $insItem=$pdo->prepare('
             INSERT INTO shipment_items (
               shipment_id, item_no, description, cartons, qty_per_ctn, total_qty,
@@ -292,8 +261,12 @@ $insShipment->execute([
           try{
             $log=$pdo->prepare('INSERT INTO logs (action_type, actor_id, related_shipment_id, details, timestamp)
                                 VALUES (?,?,?,?,NOW())');
-            $log->execute(['shipments_import',(int)($_SESSION['admin_id']??0)*-1,$shipmentId,
-              json_encode(['file'=>$originalName,'tracking'=>$tracking,'items'=>count($normRows)],JSON_UNESCAPED_UNICODE)]);
+            $log->execute([
+              'shipments_import',
+              (int)($_SESSION['admin_id']??0)*-1,
+              $shipmentId,
+              json_encode(['file'=>$originalName,'tracking'=>$tracking,'items'=>count($normRows),'user_id'=>$userId],JSON_UNESCAPED_UNICODE)
+            ]);
           }catch(Throwable $e){}
 
           $pdo->commit();
@@ -315,26 +288,31 @@ include __DIR__ . '/../../assets/inc/header.php';
   <?php if ($flash_success): ?><div class="alert success"><?= htmlspecialchars($flash_success) ?></div><?php endif; ?>
   <?php if ($flash_error):   ?><div class="alert error"><?= htmlspecialchars($flash_error) ?></div><?php endif; ?>
 
-  <?php if ($summary['total_rows'] > 0): ?>
-    <div class="summary">
-      <p>Total rows: <?= (int)$summary['total_rows'] ?> • Inserted: <?= (int)$summary['inserted'] ?> • Skipped: <?= (int)$summary['skipped'] ?></p>
-      <?php if ($summary['errors']): ?>
-        <details><summary>Row errors (<?= count($summary['errors']) ?>)</summary>
-          <ul class="errors"><?php foreach ($summary['errors'] as $e): ?><li><?= htmlspecialchars($e) ?></li><?php endforeach; ?></ul>
-        </details>
-      <?php endif; ?>
-    </div>
-  <?php endif; ?>
-
   <form method="post" action="upload_shipments.php" enctype="multipart/form-data" class="upload-form">
     <!-- <input type="hidden" name="csrf" value="<?= csrf_issue() ?>"> -->
+
     <div class="field">
       <label>Choose file (CSV or XLSX)</label>
       <input type="file" name="file" accept=".csv,.xlsx" required>
     </div>
+
+    <div class="field">
+      <label>Assign to user (optional)</label>
+      <select name="user_id">
+        <option value="">— Unassigned —</option>
+        <?php foreach ($allUsers as $u): ?>
+          <option value="<?= (int)$u['user_id'] ?>"
+            <?= ($selectedUserId === (int)$u['user_id']) ? 'selected' : '' ?>>
+            <?= htmlspecialchars($u['full_name'] . ($u['shipping_code'] ? " ({$u['shipping_code']})" : '')) ?>
+          </option>
+        <?php endforeach; ?>
+      </select>
+    </div>
+
     <div class="field checkbox">
       <label><input type="checkbox" name="has_header" checked> First row is header</label>
     </div>
+
     <button type="submit">Upload</button>
   </form>
 
@@ -343,7 +321,7 @@ include __DIR__ . '/../../assets/inc/header.php';
     <code style="display:block;white-space:pre-wrap">
 PHOTO, ITEM NO, DESCRIPTION, TOTAL CTNS, QTY/CTN, TOTALQTY, UNIT PRICE, TOTAL AMOUNT, CBM, TOTAL CBM, GWKG, TOTAL GW
     </code>
-    <p>We ignore <strong>PHOTO</strong>. One tracking number per file (customer): the file name is used as the tracking prefix.</p>
+    <p>We ignore <strong>PHOTO</strong>. One tracking number per file (customer); file name is used as the tracking prefix.</p>
   </section>
 </main>
 <?php include __DIR__ . '/../../assets/inc/footer.php'; ?>
