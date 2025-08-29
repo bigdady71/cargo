@@ -1,0 +1,212 @@
+/* Admin – Manage Shipments (LIGHT, minimal) */
+/* Scoped to <main.container> */
+
+main.container {
+  --bg: transparent;
+  --card: #ffffff;
+  --subtle: #f8fafc;
+  --text: #0f172a;
+  --muted: #475569;
+  --line: #e5e7eb;
+  --accent: #0ea5e9;
+  --accent-600: #0284c7;
+  --danger: #ef4444;
+  --success: #10b981;
+  --radius: 12px;
+  --shadow: 0 8px 20px rgba(2, 6, 23, 0.06);
+
+  color: var(--text);
+  max-width: 1040px;
+  margin: 24px auto 64px;
+  padding: 16px;
+}
+
+/* ---------- Title ---------- */
+main.container > h1 {
+  margin: 4px 0 18px;
+  font-size: clamp(26px, 3.2vw, 40px);
+  line-height: 1.1;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+}
+main.container > h1::after {
+  content: "";
+  display: block;
+  width: 64px;
+  height: 3px;
+  margin-top: 10px;
+  border-radius: 3px;
+  background: var(--accent);
+}
+
+/* ---------- Alerts ---------- */
+main.container .alert {
+  border-radius: 10px;
+  padding: 10px 12px;
+  margin: 10px 0 14px;
+  border: 1px solid var(--line);
+  background: var(--subtle);
+  font-size: 14px;
+}
+main.container .alert.success {
+  border-color: color-mix(in srgb, var(--success) 40%, var(--line));
+  background: color-mix(in srgb, var(--success) 10%, #fff);
+}
+main.container .alert.error {
+  border-color: color-mix(in srgb, var(--danger) 40%, var(--line));
+  background: color-mix(in srgb, var(--danger) 10%, #fff);
+}
+
+/* ---------- Filters ---------- */
+main.container .filters {
+  display: grid;
+  grid-template-columns: 1fr 220px auto auto;
+  gap: 8px;
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 12px;
+  margin-bottom: 12px;
+}
+main.container .filters input[type="text"],
+main.container .filters select {
+  width: 100%;
+  height: 38px;
+  padding: 8px 10px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: #fff;
+  font-size: 14px;
+}
+main.container .filters button,
+main.container .btn-secondary {
+  height: 38px;
+  padding: 0 14px;
+  border-radius: 10px;
+  font-weight: 700;
+  font-size: 14px;
+  border: 1px solid transparent;
+  cursor: pointer;
+}
+main.container .filters button {
+  background: var(--accent);
+  color: #fff;
+}
+main.container .btn-secondary {
+  display: inline-grid;
+  place-items: center;
+  background: #fff;
+  color: var(--text);
+  border-color: var(--line);
+  text-decoration: none;
+}
+
+/* ---------- Meta ---------- */
+main.container .results-meta {
+  font-size: 13px;
+  color: var(--muted);
+  margin: 4px 2px 10px;
+}
+
+/* ---------- Table ---------- */
+main.container .table-wrap {
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  overflow: hidden;
+}
+
+main.container .table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+}
+main.container .table thead th {
+  text-align: left;
+  padding: 10px 12px;
+  background: var(--subtle);
+  border-bottom: 1px solid var(--line);
+  color: var(--muted);
+  font-weight: 700;
+  white-space: nowrap;
+}
+main.container .table tbody td {
+  padding: 10px 12px;
+  border-top: 1px solid var(--line);
+  vertical-align: middle;
+}
+main.container .table tbody tr:nth-child(even) { background: #fcfdff; }
+main.container .table tbody tr:hover { background: #f5fbff; }
+
+/* ---------- Inline status form ---------- */
+main.container .inline-form {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: 1fr auto;
+  gap: 6px;
+  align-items: center;
+}
+main.container .inline-form select {
+  height: 32px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #fff;
+  padding: 4px 8px;
+  font-size: 13px;
+}
+main.container .inline-form button {
+  height: 32px;
+  padding: 0 10px;
+  border-radius: 8px;
+  background: var(--accent);
+  color: #fff;
+  font-weight: 700;
+  border: 1px solid transparent;
+  cursor: pointer;
+}
+
+/* ---------- Action link ---------- */
+main.container .btn-link {
+  color: var(--accent-600);
+  text-decoration: none;
+  font-weight: 700;
+  font-size: 13px;
+}
+main.container .btn-link:hover { text-decoration: underline; }
+
+/* ---------- Pagination ---------- */
+main.container .pagination {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  justify-content: center;
+  margin: 14px 0 0;
+  font-size: 14px;
+}
+main.container .pagination a,
+main.container .pagination span {
+  padding: 8px 12px;
+  border-radius: 999px;
+  border: 1px solid var(--line);
+  background: #fff;
+  color: var(--text);
+  text-decoration: none;
+}
+main.container .pagination a:hover { background: var(--subtle); }
+main.container .pagination .disabled {
+  color: var(--muted);
+  background: #f9fafb;
+}
+
+/* ---------- Small-screen polish ---------- */
+@media (max-width: 720px) {
+  main.container .filters {
+    grid-template-columns: 1fr;
+  }
+  main.container .inline-form { grid-auto-flow: row; grid-auto-columns: unset; }
+}
+@media (min-width: 1120px) {
+  main.container { padding: 24px; }
+}
