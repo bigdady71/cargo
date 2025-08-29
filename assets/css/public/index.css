@@ -484,19 +484,11 @@ margin:0px;
 
 
 
-
-
-
-
-
-
-
-
 /*BANNER*/
 .banner{
 width:100%;
 height:130vh;
-background-image:url("https://i.ibb.co/q7PTcrL/bg.webp");
+  background-image: url("../../images/25.jpg");
 background-size:cover;
 background-position:center;
 background-attachment:fixed;
@@ -505,6 +497,7 @@ display:flex;
 align-items:Center;
 justify-content:left;
 padding:3rem 0;
+z-index: 1;
 }
 
 .banner section{

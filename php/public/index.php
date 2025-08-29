@@ -69,7 +69,7 @@ function requireUser() {
     
 <div class="header">
 <section>
-<span class="cross parallelogram"><img src="https://i.ibb.co/wRTpk3V/logo.png" class="logo skew-fix" alt="LOGO."></span>
+<span class="cross parallelogram"><img src="../../assets/images/Salameh-Cargo-Logo-ai-7.webp" class="logo skew-fix"  alt="LOGO."></span>
 </section>
 <section>
 <div class="top-tab">
@@ -85,7 +85,7 @@ function requireUser() {
 </span>
 </div>
 <div class="topnav" id="myTopnav">
-<a href="#"><img src="https://i.ibb.co/wRTpk3V/logo.png" id="res_logo"></a>
+<a href="#"><img src="../../assets/images/Salameh-Cargo-Logo-ai-7.webp" id="res_logo"></a>
 <a href="#home" class="active">Home</a>
 <a href="#news">News</a>
 <a href="#contact">Contact</a>
@@ -110,7 +110,7 @@ function requireUser() {
 <!--BANNER-->
 <div class="banner">
 <section>
-<h3>Welcome To <em>Xrigade</em> Logistics</h3>
+<h3>Welcome To <em>SALAMEH CARGO</em> Logistics</h3>
 <h1 class="title">We Make Your Transport Simple</h1>
 <a href="#" class="btn1">Our Services</a> <a href="#" class="btn2">Contact Us</a>
 </section>
