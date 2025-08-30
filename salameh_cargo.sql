@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Aug 23, 2025 at 08:39 PM
+-- Generation Time: Aug 30, 2025 at 11:40 AM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -40,13 +40,6 @@ CREATE TABLE `admins` (
   `updated_at` datetime DEFAULT current_timestamp() ON UPDATE current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
---
--- Dumping data for table `admins`
---
-
-INSERT INTO `admins` (`admin_id`, `username`, `password_hash`, `role`, `is_active`, `failed_attempts`, `locked_until`, `last_login_at`, `created_at`, `updated_at`) VALUES
-(1, 'hsyn', '$2y$10$ouxd/6nqFr6TT6vWz5qUGuFLiLA1JGN21B7jaPXoZh7zKYuhiNLO2', 'superadmin', 1, 0, NULL, '2025-08-17 22:19:37', '2025-08-11 13:31:07', '2025-08-17 22:19:37');
-
 -- --------------------------------------------------------
 
 --
@@ -61,25 +54,6 @@ CREATE TABLE `logs` (
   `details` text DEFAULT NULL,
   `timestamp` datetime DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
---
--- Dumping data for table `logs`
---
-
-INSERT INTO `logs` (`log_id`, `action_type`, `actor_id`, `related_shipment_id`, `details`, `timestamp`) VALUES
-(1, 'user_created', -1, NULL, 'Created user housseinalzekra (ID: 1)', '2025-08-10 20:31:31'),
-(2, 'twilio_error', 0, NULL, 'WhatsApp OTP error: Twilio credentials not configured', '2025-08-10 21:30:37'),
-(3, 'twilio_error', 0, NULL, 'WhatsApp OTP error: Twilio credentials not configured', '2025-08-10 21:30:58'),
-(4, 'twilio_error', 0, NULL, 'WhatsApp OTP error: Twilio credentials not configured', '2025-08-10 21:32:03'),
-(5, 'twilio_error', 0, NULL, 'WhatsApp OTP error: Twilio credentials not configured', '2025-08-10 21:32:36'),
-(6, 'twilio_error', 0, NULL, 'WhatsApp OTP error: Twilio credentials not configured properly', '2025-08-10 21:35:00'),
-(7, 'twilio_error', 0, NULL, 'WhatsApp OTP error: Twilio credentials not configured properly', '2025-08-10 21:35:14'),
-(8, 'twilio_error', 0, NULL, 'WhatsApp OTP error: Twilio credentials not configured properly', '2025-08-10 21:35:17'),
-(9, 'twilio_error', 0, NULL, 'WhatsApp OTP error: Twilio credentials not configured properly', '2025-08-10 21:37:14'),
-(10, 'twilio_error', 0, NULL, 'WhatsApp OTP error: Twilio credentials not configured properly', '2025-08-10 21:49:46'),
-(11, 'twilio_error', 0, NULL, 'WhatsApp OTP error: Twilio credentials not configured properly', '2025-08-10 21:53:50'),
-(12, 'shipments_import', -1, NULL, 'Imported 0 shipments (0 failed) from BTECH01YW25.xlsx', '2025-08-23 20:41:17'),
-(13, 'shipments_import', -1, NULL, 'Imported 0 shipments (0 failed) from BTECH01YW25.xlsx', '2025-08-23 20:41:52');
 
 -- --------------------------------------------------------
 
@@ -106,8 +80,37 @@ CREATE TABLE `shipments` (
   `pickup_date` datetime DEFAULT NULL,
   `delivery_date` datetime DEFAULT NULL,
   `created_at` datetime DEFAULT current_timestamp(),
-  `updated_at` datetime DEFAULT current_timestamp() ON UPDATE current_timestamp() COMMENT 'Timestamp of the last shipment status update.'
+  `updated_at` datetime DEFAULT current_timestamp() ON UPDATE current_timestamp() COMMENT 'Timestamp of the last shipment status update.',
+  `item_no` varchar(100) DEFAULT NULL,
+  `qty_per_ctn` int(11) DEFAULT NULL,
+  `total_qty` int(11) DEFAULT NULL,
+  `unit_price` decimal(10,2) DEFAULT NULL,
+  `total_cbm` decimal(10,2) DEFAULT NULL,
+  `total_gw` decimal(10,2) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `shipment_items`
+--
+
+CREATE TABLE `shipment_items` (
+  `item_id` int(11) NOT NULL,
+  `shipment_id` int(11) NOT NULL,
+  `item_no` varchar(64) DEFAULT NULL,
+  `description` text DEFAULT NULL,
+  `cartons` int(11) DEFAULT NULL,
+  `qty_per_ctn` int(11) DEFAULT NULL,
+  `total_qty` int(11) DEFAULT NULL,
+  `unit_price` decimal(12,2) DEFAULT NULL,
+  `total_amount` decimal(14,2) DEFAULT NULL,
+  `cbm` decimal(10,3) DEFAULT NULL,
+  `total_cbm` decimal(10,3) DEFAULT NULL,
+  `gwkg` decimal(10,3) DEFAULT NULL,
+  `total_gw` decimal(10,3) DEFAULT NULL,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
 
@@ -143,13 +146,6 @@ CREATE TABLE `users` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
--- Dumping data for table `users`
---
-
-INSERT INTO `users` (`user_id`, `full_name`, `email`, `phone`, `shipping_code`, `address`, `country`, `id_number`, `created_at`) VALUES
-(1, 'housseinalzekra', 'housseinalzekra@gmail.com', '71706478', 'hz', 'baalbeck kayal stret', 'lebanon', '1', '2025-08-10 20:31:31');
-
---
 -- Indexes for dumped tables
 --
 
@@ -180,7 +176,15 @@ ALTER TABLE `shipments`
   ADD KEY `idx_container_number` (`container_number`),
   ADD KEY `idx_bl_number` (`bl_number`),
   ADD KEY `idx_shipping_code` (`shipping_code`),
-  ADD KEY `idx_status` (`status`);
+  ADD KEY `idx_status` (`status`),
+  ADD KEY `idx_shipments_user_id` (`user_id`);
+
+--
+-- Indexes for table `shipment_items`
+--
+ALTER TABLE `shipment_items`
+  ADD PRIMARY KEY (`item_id`),
+  ADD KEY `shipment_id` (`shipment_id`);
 
 --
 -- Indexes for table `shipment_scrapes`
@@ -207,19 +211,25 @@ ALTER TABLE `users`
 -- AUTO_INCREMENT for table `admins`
 --
 ALTER TABLE `admins`
-  MODIFY `admin_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+  MODIFY `admin_id` int(11) NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT for table `logs`
 --
 ALTER TABLE `logs`
-  MODIFY `log_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=14;
+  MODIFY `log_id` int(11) NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT for table `shipments`
 --
 ALTER TABLE `shipments`
   MODIFY `shipment_id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT for table `shipment_items`
+--
+ALTER TABLE `shipment_items`
+  MODIFY `item_id` int(11) NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT for table `shipment_scrapes`
@@ -231,7 +241,7 @@ ALTER TABLE `shipment_scrapes`
 -- AUTO_INCREMENT for table `users`
 --
 ALTER TABLE `users`
-  MODIFY `user_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+  MODIFY `user_id` int(11) NOT NULL AUTO_INCREMENT;
 
 --
 -- Constraints for dumped tables
@@ -242,6 +252,12 @@ ALTER TABLE `users`
 --
 ALTER TABLE `shipments`
   ADD CONSTRAINT `shipments_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`user_id`) ON DELETE SET NULL;
+
+--
+-- Constraints for table `shipment_items`
+--
+ALTER TABLE `shipment_items`
+  ADD CONSTRAINT `shipment_items_ibfk_1` FOREIGN KEY (`shipment_id`) REFERENCES `shipments` (`shipment_id`) ON DELETE CASCADE;
 
 --
 -- Constraints for table `shipment_scrapes`

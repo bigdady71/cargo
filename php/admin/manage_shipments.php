@@ -194,7 +194,7 @@ function linkWith($page, $q, $fStatus) {
               <td><?= htmlspecialchars((string)$r['updated_at']) ?></td>
               <td>
                 <!-- Placeholder for future actions: view/edit detail -->
-                <a class="btn-link" href="#">View</a>
+<a href="shipment_view.php?id=<?= (int)$r['shipment_id'] ?>" class="link">View</a>
               </td>
             </tr>
           <?php endforeach; ?>
